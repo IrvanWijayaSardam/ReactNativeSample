@@ -1,4 +1,4 @@
-package com.aminivan.reactsample
+package com.aminivan.react_sample
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

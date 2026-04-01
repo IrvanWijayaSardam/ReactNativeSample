@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.aminivan.reactsample"
+    namespace "com.aminivan.react_sample"
     defaultConfig {
-        applicationId "com.aminivan.reactsample"
+        applicationId "com.aminivan.react_sample"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

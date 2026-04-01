@@ -1,4 +1,4 @@
-package com.aminivan.reactsample
+package com.aminivan.react_sample
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -6,7 +6,16 @@
  */
 
 import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import {
+  StatusBar,
+  StyleSheet,
+  useColorScheme,
+  View,
+  Button,
+  Platform,
+  ToastAndroid,
+  Alert,
+} from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -32,6 +41,16 @@ function AppContent() {
         templateFileName="App.tsx"
         safeAreaInsets={safeAreaInsets}
       />
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Show Toast"
+          onPress={() =>
+            Platform.OS === 'android'
+              ? ToastAndroid.show('App working', ToastAndroid.SHORT)
+              : Alert.alert('App working')
+          }
+        />
+      </View>
     </View>
   );
 }
@@ -39,6 +58,9 @@ function AppContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  buttonContainer: {
+    padding: 16,
   },
 });
 
