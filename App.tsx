@@ -1,27 +1,16 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {
   Alert,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
-  Button,
   Platform,
   ToastAndroid,
 } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import DeviceInfo from './src/deviceInfo';
-
-type DeviceValues = {
-  androidId: string;
-  device: string;
-  deviceId: string;
-  error?: string;
-};
+import {SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -36,17 +25,13 @@ function App() {
 
 function AppContent() {
   const safeAreaInsets = useSafeAreaInsets();
-  const [deviceValues, setDeviceValues] = useState<DeviceValues>({
-    androidId: 'Loading...',
-    device: 'Loading...',
-    deviceId: 'Loading...',
-  });
-  const [count, setCount] = useState(1);
+  const [gold, setGold] = useState(0);
+  const GOAL = 99999;
 
-  const increment = () =>
-    setCount(c => {
-      const next = c + 1;
-      if (next >= 9999) {
+  const addGold = () =>
+    setGold(g => {
+      const next = g + 1;
+      if (next >= GOAL) {
         if (Platform.OS === 'android') {
           ToastAndroid.show('App been hacked', ToastAndroid.SHORT);
         } else {
@@ -56,53 +41,7 @@ function AppContent() {
       return next;
     });
 
-  const decrement = () => setCount(c => Math.max(1, c - 1));
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadDeviceInfo = async () => {
-      try {
-        const androidId =
-          Platform.OS === 'android' ? await DeviceInfo.getAndroidId() : 'N/A';
-        const device = await DeviceInfo.getDevice();
-        const deviceId = DeviceInfo.getDeviceId();
-
-        if (!mounted) {
-          return;
-        }
-
-        console.log('Device info values', {
-          androidId,
-          device,
-          deviceId,
-        });
-
-        setDeviceValues({
-          androidId,
-          device,
-          deviceId,
-        });
-      } catch (error) {
-        if (!mounted) {
-          return;
-        }
-
-        setDeviceValues({
-          androidId: 'Unavailable',
-          device: 'Unavailable',
-          deviceId: 'Unavailable',
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    };
-
-    loadDeviceInfo();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const percent = Math.min((gold / GOAL) * 100, 100);
 
   return (
     <View
@@ -113,20 +52,37 @@ function AppContent() {
           paddingBottom: safeAreaInsets.bottom + 24,
         },
       ]}>
-      <View style={styles.infoCard}>
-        <Text style={styles.heading}>react-native-device-info</Text>
-        <Text style={styles.subheading}>Android values shown on screen</Text>
-        <Text style={styles.item}>getAndroidId(): {deviceValues.androidId}</Text>
-        <Text style={styles.item}>getDevice(): {deviceValues.device}</Text>
-        <Text style={styles.item}>getDeviceId(): {deviceValues.deviceId}</Text>
-        {deviceValues.error ? (
-          <Text style={styles.error}>Error: {deviceValues.error}</Text>
-        ) : null}
+      {/* Goal card */}
+      <View style={styles.goalCard}>
+        <Text style={styles.goalTitle}>🏆 Gold Rush</Text>
+        <Text style={styles.goalSub}>
+          Claim {GOAL.toLocaleString()} gold bars to win
+        </Text>
+        {/* progress bar */}
+        <View style={styles.progressBg}>
+          <View style={[styles.progressFill, {width: `${percent}%` as any}]} />
+        </View>
+        <Text style={styles.progressLabel}>
+          {gold.toLocaleString()} / {GOAL.toLocaleString()} ({percent.toFixed(1)}
+          %)
+        </Text>
       </View>
-      <View style={styles.counterRow}>
-        <Button title="-" onPress={decrement} />
-        <Text style={styles.counterText}>{count}</Text>
-        <Button title="+" onPress={increment} />
+
+      {/* Gold bar display */}
+      <View style={styles.goldDisplay}>
+        <Text style={styles.goldEmoji}>🪙</Text>
+        <Text style={styles.goldCount}>{gold.toLocaleString()}</Text>
+        <Text style={styles.goldLabel}>gold bars</Text>
+      </View>
+
+      {/* Big tap button */}
+      <View style={styles.tapArea}>
+        <TouchableOpacity
+          style={styles.claimBtn}
+          onPress={addGold}
+          activeOpacity={0.7}>
+          <Text style={styles.claimBtnText}>👆 CLAIM GOLD BAR</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -136,46 +92,82 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1a1a2e',
   },
-  infoCard: {
+  goalCard: {
     marginHorizontal: 16,
+    marginTop: 16,
     marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#f3f4f6',
-    gap: 8,
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: '#16213e',
+    gap: 12,
+    borderWidth: 2,
+    borderColor: '#d97706',
   },
-  heading: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  subheading: {
-    fontSize: 14,
-    color: '#4b5563',
-  },
-  item: {
-    fontSize: 14,
-    color: '#1f2937',
-  },
-  error: {
-    fontSize: 14,
-    color: '#b91c1c',
-  },
-  counterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-    padding: 16,
-  },
-  counterText: {
-    fontSize: 32,
+  goalTitle: {
+    fontSize: 22,
     fontWeight: '700',
-    color: '#111827',
-    minWidth: 80,
+    color: '#fbbf24',
     textAlign: 'center',
+  },
+  goalSub: {
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
+  },
+  progressBg: {
+    height: 20,
+    backgroundColor: '#0f172a',
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#d97706',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#d97706',
+  },
+  progressLabel: {
+    fontSize: 13,
+    color: '#cbd5e1',
+    textAlign: 'center',
+  },
+  goldDisplay: {
+    alignItems: 'center',
+    gap: 4,
+    marginVertical: 24,
+  },
+  goldEmoji: {
+    fontSize: 64,
+  },
+  goldCount: {
+    fontSize: 48,
+    fontWeight: '800',
+    color: '#fbbf24',
+  },
+  goldLabel: {
+    fontSize: 16,
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+  },
+  tapArea: {
+    marginHorizontal: 16,
+    padding: 16,
+  },
+  claimBtn: {
+    backgroundColor: '#d97706',
+    paddingVertical: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  claimBtnText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#ffffff',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
 });
 
