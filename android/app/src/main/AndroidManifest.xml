@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <permission
+        android:name="com.doverunner.aos.security.permission.RECEIVE_ALERTS"
+        android:protectionLevel="normal"/>
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.doverunner.aos.security.permission.RECEIVE_ALERTS" />
 
     <application
       android:name=".MainApplication"
@@ -23,5 +28,15 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
+      <receiver
+        android:name=".ThreatReceiver"
+        android:exported="true"
+        android:permission="com.doverunner.aos.security.permission.RECEIVE_ALERTS">
+        <intent-filter>
+          <action android:name="com.doverunner.aos.security.action.THREAT_DISCOVERED" />
+        </intent-filter>
+      </receiver>
+
     </application>
 </manifest>
